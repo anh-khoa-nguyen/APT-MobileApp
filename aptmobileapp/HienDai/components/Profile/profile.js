@@ -1,181 +1,217 @@
-// import React from 'react';
-// import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
-// import { useNavigation } from '@react-navigation/native';
-// import {
-//     User,
-//     Home,
-//     Car,
-//     LogOut,
-//     ChevronRight,
-//     Settings,
-//     Shield,
-//     HelpCircle
-// } from 'lucide-react-native';   
+import React, { useState, useEffect, useContext } from 'react';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, Title, Button, List, Avatar, IconButton } from 'react-native-paper';
+import styles from './style';
 
-// import { Card } from '../Card';
-// import { useAuthStore } from '../../store/authStore';
-// import { mockResidents } from '../../mocks/residents';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
-// import styles from "./style";
-// import myStyles from "../../Styles/MyStyles";
-// import Colors from "../../Styles/colors";
 
-// export default function ProfileScreen() {
-//     const navigation = useNavigation();
-//     const { user, logout } = useAuthStore();
+import { MyDispatchContext, MyUserContext } from "../../configs/Contexts";
 
-//     const residentInfo = user?.role === 'resident'
-//         ? mockResidents.find(r => r.userId === user.id)
-//         : null;
+import { authAPI, endpoints } from "../../configs/Apis";
+import MyStyles from '../../Styles/MyStyles';
+import { formatDate } from '../../configs/Utils';
 
-//     const handleLogout = () => {
-//         Alert.alert(
-//             'Confirm Logout',
-//             'Are you sure you want to log out?',
-//             [
-//                 { text: 'Cancel', style: 'cancel' },
-//                 {
-//                     text: 'Logout',
-//                     style: 'destructive',
-//                     onPress: async () => {
-//                         await logout();
-//                     }
-//                 }
-//             ]
-//         );
-//     };
 
-//     const safeNavigate = (route) => {
-//         try {
-//             navigation.navigate(route);
-//         } catch (e) {
-//             console.warn('Navigation failed:', route);
-//         }
-//     };
+const ProfileScreen = () => {
 
-//     return (
-//         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-//             <View style={styles.profileHeader}>
-//                 <Image
-//                     source={{ uri: user?.avatar || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=256&q=80' }}
-//                     style={styles.avatar}
-//                 />
-//                 <View style={styles.profileInfo}>
-//                     <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
-//                     <Text style={styles.role}>{user?.role === 'admin' ? 'Administrator' : 'Resident'}</Text>
-//                     {residentInfo && (
-//                         <Text style={styles.apartmentNumber}>Apartment {residentInfo.apartmentNumber}</Text>
-//                     )}
-//                 </View>
-//             </View>
+  const dispatch = useContext(MyDispatchContext);
+  console.log("Dispatch context:", dispatch);
+  const user = useContext(MyUserContext);
+  console.log("User context:", user);
 
-//             <Card style={styles.sectionCard}>
-//                 <Text style={styles.sectionTitle}>Account</Text>
+  const [info, setInfo] = useState(null)
 
-//                 <TouchableOpacity
-//                     style={styles.menuItem}
-//                     onPress={() => safeNavigate('PersonalInfo')}
-//                 >
-//                     <View style={styles.menuItemLeft}>
-//                         <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(74, 111, 165, 0.1)' }]}>
-//                             <User size={20} color={Colors.primary} />
-//                         </View>
-//                         <Text style={styles.menuItemText}>Personal Information</Text>
-//                     </View>
-//                     <ChevronRight size={20} color={Colors.textLight} />
-//                 </TouchableOpacity>
+  const loadInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await authAPI(token).get(endpoints["get_info"]);
+      setInfo(res.data);
+      console.log("Resident info:", res.data);
+    } catch (error) {
+      console.error("Lỗi lấy resident info:", error);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+        console.error("Headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error config:", error.config);
+      }
+    }
+  };
 
-//                 {user?.role === 'resident' && (
-//                     <>
-//                         <View style={styles.divider} />
 
-//                         <TouchableOpacity
-//                             style={styles.menuItem}
-//                             onPress={() => safeNavigate('Apartment')}
-//                         >
-//                             <View style={styles.menuItemLeft}>
-//                                 <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(76, 175, 80, 0.1)' }]}>
-//                                     <Home size={20} color={Colors.success} />
-//                                 </View>
-//                                 <Text style={styles.menuItemText}>Apartment Details</Text>
-//                             </View>
-//                             <ChevronRight size={20} color={Colors.textLight} />
-//                         </TouchableOpacity>
+  const picker = async () => {
+    let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert("Permissions denied!");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync();
 
-//                         <View style={styles.divider} />
+    if (!result.canceled && result.assets && result.assets[0]) {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        const formData = new FormData();
+        formData.append('avatar', {
+          uri: result.assets[0].uri,
+          name: 'avatar.jpg',
+          type: 'image/jpeg',
+        });
 
-//                         <TouchableOpacity
-//                             style={styles.menuItem}
-//                             onPress={() => safeNavigate('Vehicles')}
-//                         >
-//                             <View style={styles.menuItemLeft}>
-//                                 <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(255, 179, 71, 0.1)' }]}>
-//                                     <Car size={20} color={Colors.secondary} />
-//                                 </View>
-//                                 <Text style={styles.menuItemText}>Manage Vehicles</Text>
-//                             </View>
-//                             <ChevronRight size={20} color={Colors.textLight} />
-//                         </TouchableOpacity>
-//                     </>
-//                 )}
-//             </Card>
+        await authAPI(token).patch(endpoints['update_avatar'], formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
 
-//             <Card style={styles.sectionCard}>
-//                 <Text style={styles.sectionTitle}>Settings</Text>
+        // Sau khi upload thành công, load lại info để cập nhật avatar
+        const res = await authAPI(token).get(endpoints['current_user']); // hoặc endpoints['current_user'] nếu backend hỗ trợ
+        dispatch({
+            type: "login",
+            payload: res.data
+        });
 
-//                 <TouchableOpacity
-//                     style={styles.menuItem}
-//                     onPress={() => safeNavigate('Settings')}
-//                 >
-//                     <View style={styles.menuItemLeft}>
-//                         <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(33, 150, 243, 0.1)' }]}>
-//                             <Settings size={20} color={Colors.info} />
-//                         </View>
-//                         <Text style={styles.menuItemText}>App Settings</Text>
-//                     </View>
-//                     <ChevronRight size={20} color={Colors.textLight} />
-//                 </TouchableOpacity>
+        alert("Cập nhật ảnh đại diện thành công!");
+        loadInfo();
+      } catch (err) {
+        alert("Lỗi cập nhật ảnh đại diện!");
+        console.error(err);
+      }
+    }
+  };
 
-//                 <View style={styles.divider} />
+  
 
-//                 <TouchableOpacity
-//                     style={styles.menuItem}
-//                     onPress={() => safeNavigate('Privacy')}
-//                 >
-//                     <View style={styles.menuItemLeft}>
-//                         <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(156, 39, 176, 0.1)' }]}>
-//                             <Shield size={20} color="#9C27B0" />
-//                         </View>
-//                         <Text style={styles.menuItemText}>Privacy & Security</Text>
-//                     </View>
-//                     <ChevronRight size={20} color={Colors.textLight} />
-//                 </TouchableOpacity>
+  useEffect(() => {
+    loadInfo();
+  }, []);
 
-//                 <View style={styles.divider} />
+  if (!info) return <Text style={{ padding: 20 }}>Đang tải thông tin...</Text>;
 
-//                 <TouchableOpacity
-//                     style={styles.menuItem}
-//                     onPress={() => safeNavigate('Help')}
-//                 >
-//                     <View style={styles.menuItemLeft}>
-//                         <View style={[styles.menuItemIcon, { backgroundColor: 'rgba(0, 188, 212, 0.1)' }]}>
-//                             <HelpCircle size={20} color="#00BCD4" />
-//                         </View>
-//                         <Text style={styles.menuItemText}>Help & Support</Text>
-//                     </View>
-//                     <ChevronRight size={20} color={Colors.textLight} />
-//                 </TouchableOpacity>
-//             </Card>
+  const fields = [{
+        title: 'Full name',
+        value: info.name,
+        icon: 'account',
+    }, {
+      title: 'Date of Birth',
+      value: formatDate(info.birthday),
+      icon: 'calendar',
+    }
+    ,{
+      title: 'Gender',
+      value: info.gender === "male" ? "Male" : info.gender === "female" ? "Female" : "Other",
+      icon: 'gender-male-female',
+    }
+    , {
+      title: 'Phone Number',
+      value: info.phone_number,
+      icon: 'phone',
+    },{
+      title: 'Apartment',
+      value: info.apt,
+      icon: 'home',
+    },];
 
-//             <TouchableOpacity
-//                 style={styles.logoutButton}
-//                 onPress={handleLogout}
-//             >
-//                 <LogOut size={20} color={Colors.error} />
-//                 <Text style={styles.logoutText}>Logout</Text>
-//             </TouchableOpacity>
+  const logout = () => {
+      dispatch({
+          "type": "logout"
+      })
+  }
 
-//             <Text style={styles.versionText}>Version 1.0.0</Text>
-//         </ScrollView>
-//     );
-// }
+  console.log("info.avatar:", info.avatar);
+
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.profileHeader}>
+
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          {/* Avatar */}
+          {info && info.avatar ? (
+            <Avatar.Image
+              size={100}
+              source={{ uri: info.avatar }}
+            />
+          ) : (
+            <Avatar.Icon
+              size={100}
+              icon="account"
+            />
+          )}
+          {/* Vai trò */}
+          <Text style={styles.role}>
+            <Text style={styles.role}>
+              {user && user.role === 'resident' ? 'Resident' : user && user.role === 'admin' ? 'Admin' : "Unknown"}
+          </Text>
+          </Text>
+          {/* Nút chọn ảnh đại diện */}
+          <TouchableOpacity
+            onPress={picker}
+            style={styles.chooseImg}
+          >
+            <IconButton icon="pencil" size={20} iconColor="#888" style={styles.chooseImg}/>
+          </TouchableOpacity>
+        </View>
+        </View>
+
+        <View style={styles.section}>
+          <Title style={styles.sectionTitle}>Information</Title>
+          <View style={MyStyles.wrap}>
+            {fields.map((item, index) => (
+            <List.Item
+                key={index}
+                title={item.title}
+                description={item.value}
+                left={props => <List.Icon {...props} icon={item.icon} />}
+              />
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Title style={styles.sectionTitle}>Settings</Title>
+          <View style={MyStyles.wrap}>
+            <List.Item
+              title="App Settings"
+              left={props => <List.Icon {...props} icon="cog-outline" color="#0099FF" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {}}
+            />
+            <List.Item
+              title="Privacy & Security"
+              left={props => <List.Icon {...props} icon="shield-outline" color="#AA66CC" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {}}
+            />
+            <List.Item
+              title="Help & Support"
+              left={props => <List.Icon {...props} icon="help-circle-outline" color="#00C4B4" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={() => {}}
+            />
+          </View>
+        </View>
+
+        <Button
+          mode="contained-tonal"
+          onPress={logout}
+          textColor="#FF3B30"
+          style={styles.logoutButton}
+          icon="logout"
+        >
+          Sign out
+        </Button>
+
+        <Text style={styles.versionText}>Version 1.0.0</Text>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default ProfileScreen;
+
+//------------------------------------------------------

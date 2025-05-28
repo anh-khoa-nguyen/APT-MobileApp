@@ -1,103 +1,66 @@
-import { StyleSheet } from "react-native";
-import Colors from "../../Styles/colors";
+// style.js
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#fff',
   },
-  contentContainer: {
-    padding: 16,
-    paddingBottom: 32,
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 80,
   },
   profileHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 30,
   },
   role: {
-    fontSize: 14,
-    color: Colors.primary,
-    marginBottom: 4,
+    marginTop: 8,
+    fontSize: 16,
+    color: '#007AFF',
   },
-  apartmentNumber: {
-    fontSize: 14,
-    color: Colors.textLight,
-  },
-  sectionCard: {
-    marginBottom: 16,
-    padding: 0,
-    overflow: 'hidden',
+  section: {
+    marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 16,
+    marginBottom: 10,
+    fontSize: 18,
     fontWeight: '600',
-    color: Colors.text,
-    padding: 16,
-    paddingBottom: 8,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuItemIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  menuItemText: {
-    fontSize: 16,
-    color: Colors.text,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.border,
-    marginLeft: 16,
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    backgroundColor: Colors.error + '10',
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: Colors.error,
-    marginLeft: 8,
+    backgroundColor: '#FEE',
+    borderRadius: 10,
+    marginTop: 10,
   },
   versionText: {
-    fontSize: 12,
-    color: Colors.textLight,
     textAlign: 'center',
+    marginTop: 10,
+    color: '#999',
   },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    height: 60,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    backgroundColor: '#fff',
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  }, chooseImg: {
+      backgroundColor: "#e6e0ec",
+      fontSize: 10,
+      alignSelf: "center",
+      // padding: 10,
+      borderRadius: 30,
+      // width: 60,   
+      textAlign: "center",
+      position: 'absolute',
+      top: -5,
+      right: -5,
+  }
 });
 
 export default styles;

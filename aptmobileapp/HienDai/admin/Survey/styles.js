@@ -1,0 +1,138 @@
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingTop: 16,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  createBtn: {
+    borderRadius: 8,
+    height: 40,
+    backgroundColor: '#1976D2',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+    elevation: 0,
+  },
+  createBtnLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 8,
+    marginLeft: 16,
+  },
+  listContent: {
+    paddingHorizontal: 8,
+    paddingBottom: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    marginBottom: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    elevation: 0,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#222',
+    flex: 1,
+  },
+  statusChip: {
+    borderRadius: 8,
+    height: 28,
+    paddingHorizontal: 0,
+    justifyContent: 'center',
+    marginLeft: 8,
+    elevation: 0,
+  },
+  statusChipText: {
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  cardDesc: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 10,
+    marginTop: 2,
+  },
+  cardInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    marginTop: 2,
+    flexWrap: 'wrap',
+  },
+  cardInfoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  icon: {
+    margin: 0,
+    padding: 0,
+    marginRight: -2,
+  },
+  cardInfoText: {
+    color: '#888',
+    fontSize: 14,
+    marginLeft: -2,
+  },
+  cardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  completeBtn: {
+    borderColor: '#1976D2',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginRight: 10,
+    height: 36,
+    justifyContent: 'center',
+    minWidth: 110,
+    backgroundColor: '#fff',
+    elevation: 0,
+  },
+  completeBtnLabel: {
+    color: '#1976D2',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  deleteBtn: {
+    height: 36,
+    justifyContent: 'center',
+    elevation: 0,
+    backgroundColor: '#fff',
+  },
+  deleteBtnLabel: {
+    color: '#1976D2',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+});

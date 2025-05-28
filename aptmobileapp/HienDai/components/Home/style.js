@@ -58,6 +58,7 @@ export const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: 16,
   },
+  
   summaryItems: {
     flexDirection: 'row',
     justifyContent: 'space-between',
