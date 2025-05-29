@@ -49,12 +49,12 @@ export default StyleSheet.create({
     flex: 1,
   },
   statusChip: {
-    borderRadius: 8,
-    height: 24,
-    paddingHorizontal: 0,
-    justifyContent: 'center',
-    marginLeft: 6,
-    elevation: 0,
+    // borderRadius: 8,
+    // height: 24,
+    // paddingHorizontal: 0,
+    // justifyContent: 'center',
+    // marginLeft: 6,
+    // elevation: 0,
   },
   statusChipText: {
     fontWeight: 'bold',
@@ -119,11 +119,6 @@ export default StyleSheet.create({
   },
   dialogStatusChip: {
     backgroundColor: '#E3F0FF',
-    borderRadius: 8,
-    height: 22,
-    marginLeft: 4,
-    elevation: 0,
-    paddingHorizontal: 8,
   },
   dialogStatusChipText: {
     color: '#1976D2',

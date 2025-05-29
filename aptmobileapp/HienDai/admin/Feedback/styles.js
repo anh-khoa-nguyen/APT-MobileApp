@@ -64,7 +64,7 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     marginBottom: 16,
-    padding: 16,
+    padding: 25,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     elevation: 0,
@@ -217,6 +217,7 @@ export default StyleSheet.create({
   dialogContentText: {
     color: '#444',
     fontSize: 15,
+    fontWeight: 'bold',
   },
   dialogSectionTitle: {
     fontSize: 16,

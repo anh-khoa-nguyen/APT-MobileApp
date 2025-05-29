@@ -27,6 +27,7 @@ import FeedbackAdmin from './HienDai/admin/Feedback/Feedback';
 import SurveyAdmin from './HienDai/admin/Survey/Survey';
 import LockerAdmin from './HienDai/admin/Locker/Locker';
 import VihicleAdmin from './HienDai/admin/Vihicles/Vihicle';
+import SurveyCreate from './HienDai/admin/Survey/SurveyCreate';
 
 // Etc
 import { useContext, useReducer } from "react";
@@ -52,6 +53,11 @@ const StackVihicle = createStack(Stack, [
   { name: "VihicleCreate", component: VihicleCreate, options: { title: "New Card" } },
 ]);
 
+const StackSurveyAdmin = createStack(Stack, [
+  { name: "SurveyAdmin", component: SurveyAdmin, options: { title: "Survey" } },
+  { name: "SurveyCreate", component: SurveyCreate, options: { title: "Survey Create" } },
+]);
+
 //Tab
 const TabNavigator = () => {
   const user = useContext(MyUserContext);
@@ -71,7 +77,7 @@ const TabNavigator = () => {
           <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} options={{ title: "Dashboard", tabBarIcon: () => <Icon size={30} source="view-dashboard" /> }} />
           <Tab.Screen name="ResidentAdmin" component={ResidentAdmin} options={{ title: "Resident", tabBarIcon: () => <Icon size={30} source="account-group" /> }} />
           <Tab.Screen name="FeedbackAdmin" component={FeedbackAdmin} options={{ title: "Feedback", tabBarIcon: () => <Icon size={30} source="comment" /> }} />
-          <Tab.Screen name="SurveyAdmin" component={SurveyAdmin} options={{ title: "Survey", tabBarIcon: () => <Icon size={30} source="clipboard-text" /> }} />
+          <Tab.Screen name="StackSurveyAdmin" component={StackSurveyAdmin} options={{ title: "Survey", headerShown:false, tabBarIcon: () => <Icon size={30} source="clipboard-text" /> }} />
           <Tab.Screen name="LockerAdmin" component={LockerAdmin} options={{ title: "Locker", tabBarIcon: () => <Icon size={30} source="lock" /> }} />
           <Tab.Screen name="VihicleAdmin" component={VihicleAdmin} options={{ title: "Vihicle", tabBarIcon: () => <Icon size={30} source="car" /> }} />
           <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile", tabBarIcon: () => <Icon size={30} source="information" /> }} />
