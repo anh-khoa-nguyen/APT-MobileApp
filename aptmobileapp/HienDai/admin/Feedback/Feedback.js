@@ -5,6 +5,7 @@ import styles from './styles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
 import { Searchbar } from 'react-native-paper';
+import { getDateTimeString } from '../../configs/Utils'; // Thêm dòng này nếu đã có hàm này
 
 
 const STATUS_COLORS = {
@@ -20,72 +21,134 @@ const PRIORITY_COLORS = {
 };
 
 
-const FeedbackCard = ({ item, onPress }) => (
-  <TouchableOpacity activeOpacity={0.95} onPress={() => onPress(item)}>
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Chip style={item.resolve_status ? styles.chipResolved : styles.chipNew} textStyle={item.resolve_status ? styles.chipResolvedText : styles.chipNewText}>
-          {item.resolve_status ? 'Resolved' : 'In Progress'}
-        </Chip>
-      </View>
-      <Text style={styles.cardContent}>{item.content.replace(/<[^>]+>/g, '')}</Text>
-      <Text style={styles.cardFrom}>
-        From: <Text style={styles.cardFromName}>{item.resident_name}</Text>
-      </Text>
-      <View style={styles.cardFooter}>
-        <Text style={styles.cardDate}>{item.created_date?.slice(0, 10)}</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+const FeedbackCard = ({ item, onPress }) => {
+  const created = getDateTimeString ? getDateTimeString(item.created_date) : item.created_date?.slice(0, 10);
+  const updated = getDateTimeString ? getDateTimeString(item.updated_date) : item.updated_date?.slice(0, 10);
 
-const FeedbackDetailDialog = ({ visible, onDismiss, feedback }) => {
-  if (!feedback) return null;
+  return (
+    <TouchableOpacity activeOpacity={0.95} onPress={() => onPress(item)}>
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <Chip style={item.resolve_status ? styles.chipResolved : styles.chipNew} textStyle={item.resolve_status ? styles.chipResolvedText : styles.chipNewText}>
+            {item.resolve_status ? 'Resolved' : 'In Progress'}
+          </Chip>
+        </View>
+        <Text style={styles.cardContent}>{item.content.replace(/<[^>]+>/g, '')}</Text>
+        <Text style={styles.cardFrom}>
+          From: <Text style={styles.cardFromName}>{item.resident_name}</Text>
+        </Text>
+        <View style={styles.cardFooter}>
+          <View>
+            <Text style={styles.cardDate}>Created date: {created}</Text>
+            {created !== updated && (
+              <Text style={styles.cardDate}>Last responded: {updated}</Text>
+            )}
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const FeedbackDetailDialog = ({ visible, onDismiss, feedback, loading }) => {
+  const [reply, setReply] = useState('');
+  const [sending, setSending] = useState(false);
+  const [localFeedback, setLocalFeedback] = useState(feedback);
+
+  useEffect(() => {
+    setReply('');
+    setLocalFeedback(feedback);
+  }, [feedback, visible]);
+
+  const handleSendReply = async () => {
+    if (!reply.trim()) return;
+    setSending(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      await authAPI(token).patch(
+        endpoints['set_response'](feedback.id), 
+        { response: reply }
+      );
+      // Cập nhật giao diện ngay sau khi gửi thành công
+      setLocalFeedback({ ...localFeedback, fbres: reply });
+      setReply('');
+    } catch (error) {
+      console.error("Error sending reply:", error.message);
+      alert("Gửi phản hồi thất bại!");
+      
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!localFeedback) return null;
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={onDismiss} style={styles.dialog}>
         <Dialog.Title>
-          <Text style={styles.dialogTitle}>{feedback.title}</Text>
+          <Text style={styles.dialogTitle}>{localFeedback.title}</Text>
           <IconButton icon="close" size={22} style={styles.dialogClose} onPress={onDismiss} />
         </Dialog.Title>
         <Dialog.Content>
           <View style={styles.dialogInfoRow}>
-            <Text style={styles.dialogFrom}>From: <Text style={styles.dialogFromName}>{feedback.resident_name}</Text></Text>
-            <Text style={styles.dialogDate}>{feedback.date}, {feedback.time}</Text>
-            {feedback.status === 'New' && (
-              <Chip style={styles.chipNew} textStyle={styles.chipNewText}>New</Chip>
-            )}
+            <Text style={styles.dialogFrom}>From: <Text style={styles.dialogFromName}>{localFeedback.resident_name}</Text></Text>
           </View>
           <View style={styles.dialogContentBox}>
-            <Text style={styles.dialogContentText}>{feedback.content}</Text>
+            <Text style={styles.dialogContentText}>{localFeedback.content}</Text>
+            {localFeedback.fbimg && (
+              <Image
+                source={{ uri: localFeedback.fbimg }}
+                style={{ width: '100%', height: 200, marginTop: 12, borderRadius: 8 }}
+                resizeMode="cover"
+              />
+            )}
           </View>
+          {/* Các button trạng thái */}
           <Text style={styles.dialogSectionTitle}>Status</Text>
           <View style={styles.dialogStatusRow}>
-            <Chip style={feedback.status === 'New' ? styles.chipStatusActive : styles.chipStatus} textStyle={feedback.status === 'New' ? styles.chipStatusActiveText : styles.chipStatusText}>New</Chip>
-            <Chip style={feedback.status === 'In Progress' ? styles.chipStatusActive : styles.chipStatus} textStyle={feedback.status === 'In Progress' ? styles.chipStatusActiveText : styles.chipStatusText}>In Progress</Chip>
-            <Chip style={feedback.status === 'Resolved' ? styles.chipStatusActive : styles.chipStatus} textStyle={feedback.status === 'Resolved' ? styles.chipStatusActiveText : styles.chipStatusText}>Resolved</Chip>
+            <Chip style={localFeedback.status === 'New' ? styles.chipStatusActive : styles.chipStatus} textStyle={localFeedback.status === 'New' ? styles.chipStatusActiveText : styles.chipStatusText}>New</Chip>
+            <Chip style={localFeedback.status === 'In Progress' ? styles.chipStatusActive : styles.chipStatus} textStyle={localFeedback.status === 'In Progress' ? styles.chipStatusActiveText : styles.chipStatusText}>In Progress</Chip>
+            <Chip style={localFeedback.status === 'Resolved' ? styles.chipStatusActive : styles.chipStatus} textStyle={localFeedback.status === 'Resolved' ? styles.chipStatusActiveText : styles.chipStatusText}>Resolved</Chip>
           </View>
-          <Text style={styles.dialogSectionTitle}>Priority</Text>
-          <View style={styles.dialogPriorityRow}>
-            <Chip style={feedback.priority === 'Low' ? styles.chipPriorityActiveLow : styles.chipPriority} textStyle={feedback.priority === 'Low' ? styles.chipPriorityActiveText : styles.chipPriorityText}>Low</Chip>
-            <Chip style={feedback.priority === 'Medium' ? styles.chipPriorityActiveMedium : styles.chipPriority} textStyle={feedback.priority === 'Medium' ? styles.chipPriorityActiveText : styles.chipPriorityText}>Medium</Chip>
-            <Chip style={feedback.priority === 'High' ? styles.chipPriorityActiveHigh : styles.chipPriority} textStyle={feedback.priority === 'High' ? styles.chipPriorityActiveText : styles.chipPriorityText}>High</Chip>
-          </View>
+          {/* Hiển thị phản hồi của admin nếu có */}
+          {localFeedback.fbres && (
+            <>
+              <Text style={styles.dialogSectionTitle}>Admin Response</Text>
+              <View style={styles.dialogMsgRow}>
+                <Image source={{uri: 'https://randomuser.me/api/portraits/men/1.jpg'}} style={styles.dialogAvatar} />
+                <View style={styles.dialogMsgBox}>
+                  <Text style={styles.dialogMsgName}>Admin</Text>
+                  <Text style={styles.dialogMsgContent}>{localFeedback.fbres}</Text>
+                </View>
+              </View>
+            </>
+          )}
+          {/* Conversation giữ nguyên */}
           <Text style={styles.dialogSectionTitle}>Conversation</Text>
           <View style={styles.dialogMsgRow}>
             <Image source={{uri: 'https://randomuser.me/api/portraits/women/3.jpg'}} style={styles.dialogAvatar} />
             <View style={styles.dialogMsgBox}>
-              <Text style={styles.dialogMsgName}>{feedback.from}</Text>
-              <Text style={styles.dialogMsgContent}>{feedback.content}</Text>
+              <Text style={styles.dialogMsgName}>{localFeedback.from}</Text>
+              <Text style={styles.dialogMsgContent}>{localFeedback.content}</Text>
               <Text style={styles.dialogMsgTime}>05:45</Text>
             </View>
           </View>
+          {/* Ô nhập reply giữ nguyên */}
           <TextInput
             mode="outlined"
             placeholder="Type your reply..."
             style={styles.dialogInput}
-            right={<TextInput.Icon icon="send" />}
+            value={reply}
+            onChangeText={setReply}
+            right={
+              <TextInput.Icon
+                icon="send"
+                onPress={handleSendReply}
+                disabled={sending || !reply.trim()}
+              />
+            }
+            editable={!localFeedback.fbres}
           />
         </Dialog.Content>
       </Dialog>
@@ -101,6 +164,7 @@ const FeedbackAdmin = () => {
   const [selected, setSelected] = useState(null);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tab, setTab] = useState('All');
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     let timer = setTimeout(async () => {
@@ -120,6 +184,20 @@ const FeedbackAdmin = () => {
     }, 500);
     return () => clearTimeout(timer);
   }, [q]);
+
+  const handleCardPress = async (item) => {
+    setDetailLoading(true);
+    setDialogVisible(true);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await authAPI(token).get(endpoints['get_feedback_detail'](item.id));
+      setSelected(res.data);
+    } catch (error) {
+      setSelected(item); // fallback nếu lỗi
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const filterFeedbacks = () => {
     let data = feedbacks;
@@ -162,9 +240,9 @@ const FeedbackAdmin = () => {
       </View>
       <FlatList
         data={filterFeedbacks()}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <FeedbackCard item={item} onPress={f => { setSelected(f); setDialogVisible(true); }} />
+          <FeedbackCard item={item} onPress={handleCardPress} />
         )}
         contentContainerStyle={styles.listContent}
       />
@@ -172,6 +250,7 @@ const FeedbackAdmin = () => {
         visible={dialogVisible}
         onDismiss={() => setDialogVisible(false)}
         feedback={selected}
+        loading={detailLoading}
       />
     </View>
   );

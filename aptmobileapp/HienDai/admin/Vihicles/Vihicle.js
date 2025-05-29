@@ -4,6 +4,8 @@ import { Text, TextInput, Chip, IconButton } from 'react-native-paper';
 import styles from './styles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
+import { capitalize } from '../../configs/Utils'; // Thêm dòng này
+import { Alert } from 'react-native'; // Thêm nếu chưa có
 
 const STATUS_STYLES = {
   wait: { bg: '#FFF9C4', color: '#FBC02D', label: 'Pending' },
@@ -13,7 +15,7 @@ const STATUS_STYLES = {
 
 const TABS = ['All', 'Pending', 'Approved', 'Rejected'];
 
-const VehicleCard = ({ item }) => {
+const VehicleCard = ({ item, onConfirm }) => {
   // Xác định trạng thái hiển thị
   let statusKey = item.status_card;
   let statusObj = STATUS_STYLES[statusKey] || STATUS_STYLES['wait'];
@@ -29,7 +31,21 @@ const VehicleCard = ({ item }) => {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.vehicle_brand} {item.vehicle_model}</Text>
+        <Text style={styles.cardTitle}>
+          {capitalize(item.vehicle_brand)} {capitalize(item.vehicle_model)}
+        </Text>
+        {item.status_card === 'wait' && (
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+            <Chip
+              icon="check-circle"
+              style={{ backgroundColor: '#E8F5E9', borderRadius: 8 }}
+              textStyle={{ color: '#388E3C', fontWeight: 'bold' }}
+              onPress={() => onConfirm(item)}
+            >
+              Confirm
+            </Chip>
+          </View>
+        )}
         <Chip
           style={[
             styles.statusChip,
@@ -42,14 +58,15 @@ const VehicleCard = ({ item }) => {
         >
           {statusLabel}
         </Chip>
+
       </View>
       <View style={styles.cardRow}>
         <IconButton icon={item.vehicle_type === 'car' ? "car" : "motorbike"} size={18} style={styles.icon} />
-        <Text style={styles.cardInfo}>{item.vehicle_type}</Text>
+        <Text style={styles.cardInfo}>{capitalize(item.vehicle_type)}</Text>
       </View>
       <View style={styles.cardRow}>
         <IconButton icon="account-outline" size={18} style={styles.icon} />
-        <Text style={styles.cardInfo}>{item.resident_name}</Text>
+        <Text style={styles.cardInfo}>{capitalize(item.resident_name)}</Text>
       </View>
       <View style={styles.cardRow}>
         <IconButton icon="calendar" size={18} style={styles.icon} />
@@ -64,16 +81,17 @@ const VehicleCard = ({ item }) => {
             ]}
             textStyle={styles.colorChipText}
           >
-            {item.vehicle_color}
+            {capitalize(item.vehicle_color)}
           </Chip>
         </View>
       </View>
       {item.area ? (
         <View style={styles.spotBox}>
           <Text style={styles.spotLabel}>Parking Spot: </Text>
-          <Text style={styles.spotValue}>{item.area}</Text>
+          <Text style={styles.spotValue}>{capitalize(item.area)}</Text>
         </View>
       ) : null}
+
     </View>
   );
 };
@@ -83,6 +101,31 @@ const VihicleAdmin = () => {
   const [tab, setTab] = useState('All');
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmingCard, setConfirmingCard] = useState(null);
+
+  const handleConfirmCard = (card) => {
+    Alert.alert(
+      "Xác nhận thẻ?",
+      "Bạn chắc chắn muốn xác nhận thẻ này?",
+      [
+        { text: "Hủy", style: "cancel" },
+        { text: "Xác nhận", style: "destructive", onPress: () => doConfirmCard(card) }
+      ]
+    );
+  };
+
+  const doConfirmCard = async (card) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      console.log("Confirming card:", endpoints['confirm_card'](card.id));
+      await authAPI(token).patch(endpoints['confirm_card'](card.id));
+      alert("Card confirmed successfully!");
+      loadVehicles(); // reload lại danh sách
+    } catch (e) {
+      console.error("Error confirming card:", e.message);
+      alert("Xác nhận thất bại!");
+    }
+  };
 
   const loadVehicles = async () => {
     setLoading(true);
@@ -120,9 +163,9 @@ const VihicleAdmin = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>Vehicles</Text>
-      </View>
+      </View> */}
       <View style={styles.searchRow}>
         <TextInput
           mode="outlined"
@@ -151,7 +194,7 @@ const VihicleAdmin = () => {
         <FlatList
           data={filterVehicles()}
           keyExtractor={(_, idx) => idx.toString()}
-          renderItem={({ item }) => <VehicleCard item={item} />}
+          renderItem={({ item }) => <VehicleCard item={item} onConfirm={handleConfirmCard} />}
           contentContainerStyle={styles.listContent}
         />
       )}

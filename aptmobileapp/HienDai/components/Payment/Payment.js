@@ -28,6 +28,7 @@ export default function Payment() {
     if (q) {
       url = `${url}&q=${q}`;
     }
+    console.log(url)
     try {
       let res = await authAPI(token).get(url);
       if (page === 1) {
