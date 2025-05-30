@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
 import { Searchbar } from 'react-native-paper';
+import ResidentDialog from './ResidentDialog';
 
 const ResidentCard = ({ resident, apartment, onPressTransfer }) => (
   <Card style={styles.card}>
@@ -147,9 +148,7 @@ const ResidentAdmin = () => {
     setSelectedResident(null);
   };
 
-  const handleSelectApt = (apt) => {
-    setNewApt(apt);
-  };
+  
 
   // Lọc residents theo search
   const filteredResidents = residents.filter(r =>
@@ -189,77 +188,15 @@ const ResidentAdmin = () => {
         />
       )}
 
-      {/* Transfer Apartment Dialog */}
-      <Portal>
-        <Dialog visible={visible} onDismiss={hideDialog} style={styles.dialog}>
-          <Dialog.Title>
-            Transfer Apartment
-            <IconButton
-              icon="close"
-              size={22}
-              style={styles.dialogClose}
-              onPress={hideDialog}
-            />
-          </Dialog.Title>
-          <Dialog.Content>
-            {selectedResident && (
-              <View style={styles.dialogInfoBox}>
-                <Text>
-                  Transferring apartment for: <Text style={styles.dialogHighlight}>{selectedResident.name}</Text>
-                </Text>
-                <Text>
-                  Current apartment:{" "}
-                  <Text style={styles.dialogHighlight}>
-                    {
-                      apartments.find(a => a.resident_id === selectedResident.id)?.name || 'N/A'
-                    }
-                  </Text>
-                </Text>
-              </View>
-            )}
-            <Text style={styles.dialogLabel}>Select New Apartment</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
-              {apartmentsWithResident.map((apt, idx) => (
-                <TouchableOpacity
-                  key={apt.id || apt.name || idx}
-                  style={[
-                    styles.aptBtn,
-                    { marginRight: 10, marginBottom: 10 },
-                    newApt === apt.name && styles.aptBtnSelected
-                  ]}
-                  onPress={() => handleSelectApt(apt.name)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[
-                    styles.aptBtnLabel,
-                    newApt === apt.name && styles.aptBtnLabelSelected
-                  ]}>
-                    {apt.name}
-                  </Text>
-                  <Text style={{ fontSize: 12, color: apt.resident ? '#1976D2' : '#888' }}>
-                    {apt.resident ? `(${apt.resident.name})` : '(Chưa có cư dân)'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions style={styles.dialogActions}>
-            <Button mode="outlined" onPress={hideDialog} style={styles.dialogBtn} labelStyle={styles.dialogBtnLabel}>
-              Cancel
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleTransfer}
-              style={styles.dialogBtnPrimary}
-              labelStyle={styles.dialogBtnPrimaryLabel}
-              disabled={!newApt || transferring}
-              loading={transferring}
-            >
-              Transfer
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      <ResidentDialog
+        visible={visible}
+        onDismiss={hideDialog}
+        selectedResident={selectedResident}
+        apartments={apartments}
+        apartmentsWithResident={apartmentsWithResident}
+        reloadResidents={loadResidents}
+        reloadApartments={loadApartments}
+      />
     </View>
   );
 };

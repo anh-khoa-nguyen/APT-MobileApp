@@ -19,6 +19,10 @@ import FeedbackDetails from './HienDai/components/Community/FeedbackDetails';
 import SurveyDetails from './HienDai/components/Community/SurveyDetails';
 import FeedbackCreate from './HienDai/components/Community/FeedbackCreate';
 import VihicleCreate from './HienDai/components/Vihicle/VihicleCreate';
+import First from './HienDai/components/Login/First';
+
+//Chat
+import Chat from './HienDai/components/Chat/Chat';
 
 // Admin
 import DashboardAdmin from './HienDai/admin/Dashboard/Dashboard';
@@ -30,11 +34,12 @@ import VihicleAdmin from './HienDai/admin/Vihicles/Vihicle';
 import SurveyCreate from './HienDai/admin/Survey/SurveyCreate';
 
 // Etc
-import { useContext, useReducer } from "react";
+import { useContext, useReducer, useEffect, useState } from "react";
 import { MyDispatchContext, MyUserContext } from './HienDai/configs/Contexts';
 import { MyUserReducer } from './HienDai/configs/MyUserReducer';
 import { createStack } from './HienDai/configs/Utils';
 import { Icon } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Variable
 const Tab = createBottomTabNavigator();
@@ -58,6 +63,10 @@ const StackSurveyAdmin = createStack(Stack, [
   { name: "SurveyCreate", component: SurveyCreate, options: { title: "Survey Create" } },
 ]);
 
+const ChatStack = createStack(Stack, [
+  { name: "Chat", component: Chat, options: { title: "Chat", headerShown: false } },
+]);
+
 //Tab
 const TabNavigator = () => {
   const user = useContext(MyUserContext);
@@ -72,6 +81,9 @@ const TabNavigator = () => {
           <Tab.Screen name="Login" component={LoginScreen} options={{ title: "Login", tabBarIcon: () => <Icon size={30} source="account" /> }}/>
           <Tab.Screen name="ForgotAccount" component={ForgotAccountScreen} options={{ title: "Quên tài khoản", tabBarIcon: () => <Icon size={30} source="account-question" /> }} />
         </>
+      ) : user?.change_password_required ? (
+        // Nếu bắt buộc đổi mật khẩu, chỉ hiện tab First
+        <Tab.Screen name="First" component={First} options={{ title: "First Login", tabBarIcon: () => <Icon size={30} source="information" /> }} />
       ) : isAdmin ? (
         <>
           <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} options={{ title: "Dashboard", tabBarIcon: () => <Icon size={30} source="view-dashboard" /> }} />
@@ -81,7 +93,7 @@ const TabNavigator = () => {
           <Tab.Screen name="LockerAdmin" component={LockerAdmin} options={{ title: "Locker", tabBarIcon: () => <Icon size={30} source="lock" /> }} />
           <Tab.Screen name="VihicleAdmin" component={VihicleAdmin} options={{ title: "Vihicle", tabBarIcon: () => <Icon size={30} source="car" /> }} />
           <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile", tabBarIcon: () => <Icon size={30} source="information" /> }} />
-
+          <Tab.Screen name="ChatStack" component={ChatStack} options={{ title: "Chat", headerShown: false, tabBarIcon: () => <Icon size={30} source="chat" /> }} />
         </>
       ) : (
         <>
@@ -90,8 +102,9 @@ const TabNavigator = () => {
           <Tab.Screen name="Locker" component={Locker} options={{ title: "Locker", tabBarIcon: () => <Icon size={30} source="lock" /> }} />
           <Tab.Screen name="Vehicle" component={StackVihicle} options={{  title: "Vehicle", headerShown: false, tabBarIcon: () => <Icon size={30} source="car" /> }} />
           <Tab.Screen name="Community" component={StackCommunity} options={{ title: "Community", headerShown: false, tabBarIcon: () => <Icon size={30} source="comment" /> }} /> 
-          {/* <Tab.Screen name="PaymentDetail" component={PaymentDetails} options={{ title: "Payment Detail", tabBarIcon: () => <Icon size={30} source="credit-card" /> }} /> */}
+          <Tab.Screen name="PaymentDetail" component={PaymentDetails} options={{ title: "Payment Detail", tabBarIcon: () => <Icon size={30} source="credit-card" /> }} />
           <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile", tabBarIcon: () => <Icon size={30} source="information" /> }} />
+          <Tab.Screen name="ChatStack" component={ChatStack} options={{ title: "Chat", headerShown: false, tabBarIcon: () => <Icon size={30} source="chat" /> }} />
         </>
       )}
     </Tab.Navigator>
@@ -101,13 +114,30 @@ const TabNavigator = () => {
 //Main
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
+  const [userToken, setUserToken] = useState(null);
+
+
+  useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const token = await AsyncStorage.getItem("access_token");
+                setUserToken(token);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkLoginStatus();
+    }, []);
 
   return (
     <MyUserContext.Provider value={user}>
       <MyDispatchContext.Provider value={dispatch}>
         <PaperProvider>
           <NavigationContainer>
-            <TabNavigator/>
+            <TabNavigator userToken={userToken}/>
           </NavigationContainer>
         </PaperProvider>
       </MyDispatchContext.Provider>

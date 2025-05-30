@@ -19,7 +19,8 @@ import HomeScreen from "../Home/Home";
 // import ProfileScreen from "../Profile/Profile";
 // import { REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET } from ".env";
 
-
+// console.log("REACT_APP_CLIENT_ID: ", REACT_APP_CLIENT_ID);
+// console.log("REACT_APP_CLIENT_SECRET: ", REACT_APP_CLIENT_SECRET);
 const LoginScreen = ({ navigation }) => {
     const input = [{
         label: 'Tên đăng nhập',

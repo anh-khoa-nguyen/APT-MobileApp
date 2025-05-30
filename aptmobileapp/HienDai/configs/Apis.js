@@ -8,6 +8,7 @@ export const endpoints = {
     current_user: "/users/current_user/",
     get_info: "/residents/get_info/",
     update_avatar: "/users/update_avatar/",
+    update_password: "/users/update_password/",
 
     //Resident
     get_resident: "/residents/",
