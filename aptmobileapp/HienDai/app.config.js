@@ -26,12 +26,13 @@ export default {
             favicon: "./assets/favicon.png",
         },
         extra: {
-            apiKey: process.env.API_KEY,
-            authDomain: process.env.AUTH_DOMAIN,
-            projectId: process.env.PROJECT_ID,
-            storageBucket: process.env.STORAGE_BUCKET,
-            messagingSenderId: process.env.MESSAGING_SENDER_ID,
-            appId: process.env.APP_ID,
+            apiKey: 'AIzaSyCjGf8g8XMm-t1R9dlpndqil5AJh3HCIH8',
+            authDomain: 'chatapp-7092c.firebaseapp.com',
+            projectId: 'chatapp-7092c',
+            storageBucket: 'chatapp-7092c.firebasestorage.app',
+            messagingSenderId: '368316514401',
+            appId: '1:368316514401:web:ec5a85ccaaa7ec16deaa20',
         },
+        
     },
 };
