@@ -2,19 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Image, ActivityIndicator, Alert } from 'react-native';
 import { Text, Card, Badge, Button } from 'react-native-paper';
 import { styles } from './styles';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { authAPI, endpoints } from "../../configs/Apis";
 import { capitalize, getDateTimeString } from '../../configs/Utils';
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function Locker() {
+  // ================ Variables ================
   const [packages, setPackages] = useState([]);
+  const [locker, setLocker] = useState(null); // Thêm state cho locker
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [locker, setLocker] = useState(null); // Thêm state cho locker
   const [reload, setReload] = useState(false);
 
-
+  // ================ Functions ================
   const loadLocker = async () => {
     const token = await AsyncStorage.getItem("token");
     try {
@@ -24,16 +27,7 @@ export default function Locker() {
       }
       console.log('Locker data:', res.data.results[0]);
     } catch (error) {
-      console.error("Error fetching locker:", error.response ? error.response.data : error.message);
-      if (error.response) {
-        console.error("Status:", error.response.status);
-        console.error("Data:", error.response.data);
-        console.error("Headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-      } else {
-        console.error("Error config:", error.config);
-      }
+      console.error("Error fetching locker:", error.response);
     }
   };
 
@@ -42,6 +36,7 @@ export default function Locker() {
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
     let url = `${endpoints['get_package']}?page=${page}`;
+
     try {
       let res = await authAPI(token).get(url);
       console.log('Loaded packages:', res.data.results);
@@ -49,21 +44,13 @@ export default function Locker() {
       setHasMore(res.data.next !== null);
     } catch (error) {
       setHasMore(false);
-      console.error("Error fetching packages:", error.response ? error.response.data : error.message);
-      if (error.response) {
-        console.error("Status:", error.response.status);
-        console.error("Data:", error.response.data);
-        console.error("Headers:", error.response.headers);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-      } else {
-        console.error("Error config:", error.config);
-      }
+      console.error("Error fetching packages:", error.response);
     } finally {
       setLoading(false);
     }
   };
 
+  // ================ Alert ================
   const alertConfirm = (id) => {
     Alert.alert(
       "Confirmation",
@@ -84,13 +71,14 @@ export default function Locker() {
       setReload(r => !r);
       Alert.alert("Success", "Status updated successfully!");
     } catch (error) {
-      console.error("Error updating package:", error.response ? error.response.data : error.message);
+      console.error("Error updating package:", error.response);
       Alert.alert("Error", "Failed to update status!");
     }
   };
 
+  // ================ Effects ================
   useEffect(() => {
-    loadLocker(); // Gọi khi mount
+    loadLocker();
   }, []);
 
   useEffect(() => {
@@ -102,6 +90,7 @@ export default function Locker() {
     if (!loading && hasMore) setPage(prev => prev + 1);
   };
 
+  // ================ Render Component ================
   const renderItem = ({ item }) => {
     const created = getDateTimeString(item.created_date);
     const updated = getDateTimeString(item.updated_date);
@@ -123,7 +112,7 @@ export default function Locker() {
               {capitalize(item.status)}
             </Badge>
           </View>
-          <Text style={styles.packageDescription}>{item.item_image ? "Có hình ảnh" : "Không có hình ảnh"}</Text>
+          <Text style={styles.packageDescription}>{item.item_image ? "Image attachment" : "No Image"}</Text>
           {item.item_image && (
             <Image
               source={{ uri: item.item_image }}
@@ -146,7 +135,7 @@ export default function Locker() {
                 compact
                 onPress={() => alertConfirm(item.id)}
               >
-                Mark as Received
+                Confirm
               </Button>
             )}
           </View>
@@ -155,6 +144,7 @@ export default function Locker() {
     );
   };
 
+  // ================ Render UI ================
   return (
     <View style={styles.container}>
       <View style={styles.contentWrapper}>

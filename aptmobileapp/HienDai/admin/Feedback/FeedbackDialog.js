@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Image } from 'react-native';
 import { Text, TextInput, Portal, Dialog, IconButton, Chip } from 'react-native-paper';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import RenderHtml from 'react-native-render-html';
 import { authAPI, endpoints } from "../../configs/Apis";
-import styles from './styles';
+import styles, { tagsStyles } from '../../Styles/MyStyles';
 
 const FeedbackDialog = ({ visible, onDismiss, feedback, loading }) => {
   const [reply, setReply] = useState('');
@@ -21,7 +22,7 @@ const FeedbackDialog = ({ visible, onDismiss, feedback, loading }) => {
     try {
       const token = await AsyncStorage.getItem("token");
       await authAPI(token).patch(
-        endpoints['set_response'](feedback.id), 
+        endpoints['set_response'](feedback.id),
         { response: reply }
       );
       setLocalFeedback({ ...localFeedback, fbres: reply });
@@ -46,7 +47,7 @@ const FeedbackDialog = ({ visible, onDismiss, feedback, loading }) => {
             <Text style={styles.dialogFrom}>From: <Text style={styles.dialogFromName}>{localFeedback.resident_name}</Text></Text>
           </View>
           <View style={styles.dialogContentBox}>
-            <Text style={styles.dialogContentText}>{localFeedback.content}</Text>
+            <Text style={styles.dialogContentText}>Attachment:</Text>
             {localFeedback.fbimg && (
               <Image
                 source={{ uri: localFeedback.fbimg }}
@@ -65,7 +66,7 @@ const FeedbackDialog = ({ visible, onDismiss, feedback, loading }) => {
             <>
               <Text style={styles.dialogSectionTitle}>Admin Response</Text>
               <View style={styles.dialogMsgRow}>
-                <Image source={{uri: 'https://randomuser.me/api/portraits/men/1.jpg'}} style={styles.dialogAvatar} />
+                <Image source={{ uri: 'https://randomuser.me/api/portraits/men/1.jpg' }} style={styles.dialogAvatar} />
                 <View style={styles.dialogMsgBox}>
                   <Text style={styles.dialogMsgName}>Admin</Text>
                   <Text style={styles.dialogMsgContent}>{localFeedback.fbres}</Text>
@@ -75,10 +76,18 @@ const FeedbackDialog = ({ visible, onDismiss, feedback, loading }) => {
           )}
           <Text style={styles.dialogSectionTitle}>Conversation</Text>
           <View style={styles.dialogMsgRow}>
-            <Image source={{uri: 'https://randomuser.me/api/portraits/women/3.jpg'}} style={styles.dialogAvatar} />
+            <Image source={{ uri: 'https://randomuser.me/api/portraits/women/3.jpg' }} style={styles.dialogAvatar} />
             <View style={styles.dialogMsgBox}>
               <Text style={styles.dialogMsgName}>{localFeedback.from}</Text>
-              <Text style={styles.dialogMsgContent}>{localFeedback.content}</Text>
+              {/* <Text style={styles.dialogMsgContent}>{localFeedback.content}</Text> */}
+              <RenderHtml
+                contentWidth={350}
+                source={{ html: localFeedback.content || '' }}
+                baseStyle={styles.description}
+                enableCSSInlineProcessing={true}
+                tagsStyles={tagsStyles}
+              />
+        
               <Text style={styles.dialogMsgTime}>05:45</Text>
             </View>
           </View>

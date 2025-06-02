@@ -1,37 +1,44 @@
-import React, {
-  useState,
-  useEffect,
-  useLayoutEffect,
-  useCallback,
-  useContext,
-} from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useContext, } from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
+import { ActivityIndicator, MD2Colors,Appbar } from 'react-native-paper';
 import { GiftedChat } from 'react-native-gifted-chat';
-import {
-  collection,
-  addDoc,
-  orderBy,
-  query,
-  onSnapshot
-} from 'firebase/firestore';
+import { AntDesign } from '@expo/vector-icons';
+
+import { authAPI, endpoints } from '../../configs/Apis';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { collection, addDoc, orderBy, query, onSnapshot } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth, database } from '../../configs/firebase';
+
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign } from '@expo/vector-icons';
 import { MyUserContext } from '../../configs/Contexts';
-import { ActivityIndicator, MD2Colors,Appbar } from 'react-native-paper';
 
 export default function Chat() {
   const userA = useContext(MyUserContext) || "";
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState([]);
+  const [avatar, setAvatar] = useState(null);
   const navigation = useNavigation();
 
   console.log("UserA: ", userA);
-const onSignOut = () => {
+  const onSignOut = () => {
     signOut(auth).catch(error => console.log('Error logging out: ', error));
   };
 
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        const res = await authAPI(token).get(endpoints.get_avatar);
+        setAvatar(res.data.avatar);
+      } catch (err) {
+        setAvatar(null);
+      }
+    };
+    fetchAvatar();
+  }, []);
+
+  console.log("Avatar: ", avatar);
   useLayoutEffect(() => {
       navigation.setOptions({
         headerRight: () => (
@@ -89,10 +96,10 @@ const onSignOut = () => {
 
     return (
       <View style={{ flex: 1 }}>
-        <Appbar.Header style={{ backgroundColor: '#f6f8fa', borderBottomWidth: 2, borderBottomColor: '#ddd', marginBottom: 3 }}>
+        {/* <Appbar.Header style={{ backgroundColor: '#f6f8fa', borderBottomWidth: 2, borderBottomColor: '#ddd', marginBottom: 3 }}>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
-          <Appbar.Content title="Chat Chung cư Hiền Vy" />
-        </Appbar.Header>
+          <Appbar.Content title="Chat Realtime !" />
+        </Appbar.Header> */}
       
         {/* {loading ? (
           <ActivityIndicator style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} animating={true} color={MD2Colors.red800} />
@@ -111,7 +118,7 @@ const onSignOut = () => {
           }}
           user={{
             _id: auth?.currentUser?.email || userA?.email || "unknown",
-            // avatar: userA.avatar_acount
+            avatar: avatar
           }}
           />
         {/* )} */}

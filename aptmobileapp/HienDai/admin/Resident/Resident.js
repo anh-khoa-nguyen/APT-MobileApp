@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Avatar, Text, Card, Button, Badge, Dialog, Portal, IconButton } from 'react-native-paper';
+import { Searchbar, Avatar, Text, Card, Button, Badge, Dialog, Portal, IconButton } from 'react-native-paper';
 import styles from './styles';
+
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
-import { Searchbar } from 'react-native-paper';
-import ResidentDialog from './ResidentDialog';
 
+import ResidentDialog from './ResidentDialog';
+import { usePaginatedApi } from '../../configs/Utils';
+import { useNavigation } from "@react-navigation/native";
+
+import UserCreate from './UserCreate';
+
+// ============== Component ===============
 const ResidentCard = ({ resident, apartment, onPressTransfer }) => (
   <Card style={styles.card}>
     <View style={styles.cardContent}>
@@ -54,42 +60,27 @@ const ResidentCard = ({ resident, apartment, onPressTransfer }) => (
 );
 
 const ResidentAdmin = () => {
+  /// ============== Variables ===============
   const [search, setSearch] = useState('');
   const [visible, setVisible] = useState(false);
   const [selectedResident, setSelectedResident] = useState(null);
   const [newApt, setNewApt] = useState('');
-  const [residents, setResidents] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [apartments, setApartments] = useState([]);
   const [q, setQ] = useState();
   const [transferring, setTransferring] = useState(false);
+  const [showCreateUser, setShowCreateUser] = useState(false);
 
-  // Ghép resident vào apartment (nếu cần dùng)
-  const apartmentsWithResident = apartments.map(apartment => {
-    const resident = residents.find(r => r.id === apartment.resident_id);
-    return {
-      ...apartment,
-      resident // undefined nếu chưa có resident
-    };
-  });
+  const [reload, setReload] = useState(0);
 
-  const loadResidents = async () => {
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem("token");
-      let url = endpoints['get_resident'];
-      if (q) {
-        url = `${url}?q=${encodeURIComponent(q)}`;
-      }
-      const res = await authAPI(token).get(url);
-      setResidents(res.data.results);
-    } catch (error) {
-      setResidents([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const nav = useNavigation();
 
+  const { data: residents, loading, loadMore, setPage, hasMore } = usePaginatedApi(
+    endpoints['get_resident'],
+    console.log("Residents: ", residents),
+    q,
+    reload
+  );
+  
   const loadApartments = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -100,38 +91,14 @@ const ResidentAdmin = () => {
     }
   };
 
-  const handleTransfer = async () => {
-    if (!selectedResident || !newApt) return;
-    setTransferring(true);
-    try {
-      const token = await AsyncStorage.getItem("token");
-      // Tìm id của căn hộ mới
-      const aptObj = apartments.find(a => a.name === newApt);
-      if (!aptObj) throw new Error("Apartment not found");
-      // Gọi API chuyển căn hộ
-      await authAPI(token).post(
-        endpoints.transfer_apartment(aptObj.id),
-        { new_resident_id: selectedResident.user_id }
-      );
-      alert("Chuyển căn hộ thành công!");
-      hideDialog();
-      // Reload residents sau khi chuyển
-      loadResidents();
-      loadApartments();
-    } catch (error) {
-      console.error("Transfer failed:", error.message.status || error.message);
-      alert("Transfer failed!");
-    } finally {
-      setTransferring(false);
-    }
-  };
-
-  useEffect(() => {
-    let timer = setTimeout(() => {
-      loadResidents();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [q]);
+  // Resident with Apartment
+  const apartmentsWithResident = apartments.map(apartment => {
+    const resident = residents.find(r => r.id === apartment.resident_id);
+    return {
+      ...apartment,
+      resident
+    };
+  });
 
   useEffect(() => {
     loadApartments();
@@ -140,17 +107,22 @@ const ResidentAdmin = () => {
   const showDialog = (resident) => {
     setSelectedResident(resident);
     setNewApt('');
-    setVisible(true);
+    if (resident.user == null) {
+      setShowCreateUser(true);
+      setVisible(false);
+    } else {
+      setShowCreateUser(false);
+      setVisible(true);
+    }
   };
 
   const hideDialog = () => {
     setVisible(false);
+    setShowCreateUser(false);
     setSelectedResident(null);
   };
 
   
-
-  // Lọc residents theo search
   const filteredResidents = residents.filter(r =>
     r.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -162,10 +134,25 @@ const ResidentAdmin = () => {
         <Searchbar
           placeholder="Search for resident..."
           value={search}
-          onChangeText={setSearch}
+          onChangeText={text => {
+            setSearch(text);
+            setQ(text); // trigger search API
+            setPage(1); // reset page khi search
+          }}
           style={styles.searchInput}
         />
-        <Button mode="contained" style={styles.addBtn} icon="plus">
+        <Button
+          mode="contained"
+          style={styles.addBtn}
+          icon="plus"
+          onPress={() => nav.navigate('MemberCreate', {
+            onAdded: () => {
+              setPage(1);
+              setReload(prev => prev + 1);
+              loadApartments();
+            }
+          })}
+        >
           Add
         </Button>
       </View>
@@ -177,24 +164,33 @@ const ResidentAdmin = () => {
           data={filteredResidents}
           keyExtractor={(item, idx) => item.id?.toString() || idx.toString()}
           renderItem={({ item }) => {
-          const apartment = apartments.find(a => a.resident_id === item.id);
-          return (
-            <TouchableOpacity activeOpacity={0.95} onPress={() => showDialog(item)}>
-              <ResidentCard resident={item} apartment={apartment} onPressTransfer={showDialog} />
-            </TouchableOpacity>
-          );
-        }}
+            const apartment = apartments.find(a => a.resident_id === item.id);
+            return (
+              <TouchableOpacity activeOpacity={0.95} onPress={() => showDialog(item)}>
+                <ResidentCard resident={item} apartment={apartment} onPressTransfer={showDialog} />
+              </TouchableOpacity>
+            );
+          }}
           contentContainerStyle={styles.listContent}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={hasMore && <ActivityIndicator style={{ margin: 16 }} />}
         />
       )}
 
+      <UserCreate
+        visible={showCreateUser}
+        onDismiss={hideDialog}
+        resident={selectedResident}
+        reloadResidents={() => setPage(1)}
+      />
       <ResidentDialog
         visible={visible}
         onDismiss={hideDialog}
         selectedResident={selectedResident}
         apartments={apartments}
         apartmentsWithResident={apartmentsWithResident}
-        reloadResidents={loadResidents}
+        reloadResidents={() => setPage(1)}
         reloadApartments={loadApartments}
       />
     </View>

@@ -43,5 +43,29 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#3B5BDB',
     paddingVertical: 6,
-  },
+  }, memberList: {
+  marginVertical: 12,
+},
+memberRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 10,
+  paddingHorizontal: 8,
+  borderRadius: 12,
+  backgroundColor: '#fff',
+  marginBottom: 8,
+  elevation: 1,
+},
+memberRowSelected: {
+  backgroundColor: '#e6f7ff',
+},
+memberAvatar: {
+  marginRight: 12,
+  backgroundColor: '#eee',
+},
+memberName: {
+  fontSize: 16,
+  fontWeight: '500',
+  color: '#222',
+},
 });

@@ -4,7 +4,7 @@ import { Text, TextInput, Chip, IconButton } from 'react-native-paper';
 import styles from './styles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
-import { capitalize } from '../../configs/Utils'; // Thêm dòng này
+import { usePaginatedApi, capitalize } from '../../configs/Utils';
 import { Alert } from 'react-native'; // Thêm nếu chưa có
 
 const STATUS_STYLES = {
@@ -15,13 +15,12 @@ const STATUS_STYLES = {
 
 const TABS = ['All', 'Pending', 'Approved', 'Rejected'];
 
+// ============== Component ===============
 const VehicleCard = ({ item, onConfirm }) => {
-  // Xác định trạng thái hiển thị
   let statusKey = item.status_card;
   let statusObj = STATUS_STYLES[statusKey] || STATUS_STYLES['wait'];
   let statusLabel = statusObj.label;
 
-  // Xử lý ngày
   let created = item.created_date?.slice(0, 10);
   let updated = item.updated_date?.slice(0, 10);
   let dateLabel = created === updated
@@ -91,16 +90,14 @@ const VehicleCard = ({ item, onConfirm }) => {
           <Text style={styles.spotValue}>{capitalize(item.area)}</Text>
         </View>
       ) : null}
-
     </View>
   );
 };
 
 const VihicleAdmin = () => {
+  // ============== Variables ===============
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('All');
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [confirmingCard, setConfirmingCard] = useState(null);
 
   const handleConfirmCard = (card) => {
@@ -114,7 +111,13 @@ const VihicleAdmin = () => {
     );
   };
 
-  const doConfirmCard = async (card) => {
+  const { data: vehicles, loading, loadMore, setPage, hasMore } = usePaginatedApi(
+    endpoints['get_card'],
+    search,
+    [tab]
+  );
+
+    const doConfirmCard = async (card) => {
     try {
       const token = await AsyncStorage.getItem("token");
       console.log("Confirming card:", endpoints['confirm_card'](card.id));
@@ -126,23 +129,6 @@ const VihicleAdmin = () => {
       alert("Xác nhận thất bại!");
     }
   };
-
-  const loadVehicles = async () => {
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem("token");
-      let res = await authAPI(token).get(endpoints['get_card']);
-      setVehicles(res.data.results || []);
-    } catch (err) {
-      setVehicles([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadVehicles();
-  }, []);
 
   const filterVehicles = () => {
     let data = vehicles;
@@ -163,9 +149,6 @@ const VihicleAdmin = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Vehicles</Text>
-      </View> */}
       <View style={styles.searchRow}>
         <TextInput
           mode="outlined"
@@ -196,6 +179,9 @@ const VihicleAdmin = () => {
           keyExtractor={(_, idx) => idx.toString()}
           renderItem={({ item }) => <VehicleCard item={item} onConfirm={handleConfirmCard} />}
           contentContainerStyle={styles.listContent}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={hasMore && <ActivityIndicator style={{ margin: 16 }} />}
         />
       )}
     </View>

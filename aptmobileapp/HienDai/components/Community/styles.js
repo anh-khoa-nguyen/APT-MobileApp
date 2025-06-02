@@ -130,5 +130,32 @@ export const styles = StyleSheet.create({
     color: '#3B5BDB',
     textTransform: 'none',
     paddingHorizontal: 0,
+  }, topTabRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  chatAiTab: {
+    borderRadius: 22,
+    overflow: 'hidden',
+    marginBottom: 8,
+    elevation: 3,
+  },
+  chatAiGradient: {
+    paddingHorizontal: 32,
+    paddingVertical: 10,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+  },
+  chatAiTabText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
+    letterSpacing: 1,
+    textAlign: 'center',
   },
 });

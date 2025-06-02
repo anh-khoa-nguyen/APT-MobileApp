@@ -24,6 +24,8 @@ const ResidentDialog = ({
   const handleSelectApt = (apt) => setNewApt(apt);
 
   const handleTransfer = async () => {
+    console.log("Transferring to:", newApt);
+    console.log("Selected resident:", selectedResident);
     if (!selectedResident || !newApt) return;
     setTransferring(true);
     try {
@@ -39,6 +41,7 @@ const ResidentDialog = ({
       reloadResidents && reloadResidents();
       reloadApartments && reloadApartments();
     } catch (error) {
+      console.error("Transfer error:", error.message);
       Alert.alert("Error", "Transfer failed!");
     } finally {
       setTransferring(false);

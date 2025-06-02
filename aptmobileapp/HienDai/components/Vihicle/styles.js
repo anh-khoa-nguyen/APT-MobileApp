@@ -23,7 +23,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 18,
     height: 44,
     justifyContent: 'center',
-  },
+  }, memberButton: {
+    backgroundColor: '#008001',
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 5,
+    paddingHorizontal: 18,
+    height: 44,
+    justifyContent: 'center',
+  }, 
   addButtonLabel: {
     color: '#fff',
     fontWeight: 'bold',
@@ -109,5 +117,29 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     textTransform: 'none',
+  }, ownerBox: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  ownerLabel: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+  },
+  ownerName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#222',
+  },
+  vehicleInfo: {
+    flex: 2, // Thêm dòng này để chia tỷ lệ với ownerBox
+    marginBottom: 8,
+    justifyContent: 'center',
+  },
+  infoText: {
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 2,
   },
 });

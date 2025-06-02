@@ -6,13 +6,19 @@ export const endpoints = {
     //User
     login: "/o/token/",
     current_user: "/users/current_user/",
-    get_info: "/residents/get_info/",
     update_avatar: "/users/update_avatar/",
     update_password: "/users/update_password/",
+    get_avatar: "/users/avatar/",
 
     //Resident
     get_resident: "/residents/",
+    get_info: "/residents/get_info/",
     get_apartment: "/apartments/",
+
+    create_user: (id) => `/residents/${id}/create_user/`,
+
+    get_family: "/residents/get_profile/",
+    create_family: "/residents/create_profile/",
     transfer_apartment: (id) => `/apartments/${id}/transfer/`,
 
     //Locker
@@ -28,7 +34,7 @@ export const endpoints = {
 
     //Card (Vihicle)
     get_card: "/cards/",
-    create_card: "/cards/create_card/",
+    create_card: (id) => `/residents/${id}/create_card/`, //ID của resident
     confirm_card: (id) => `/cards/${id}/confirm_card/`,
 
     //Survey 
@@ -37,6 +43,7 @@ export const endpoints = {
     get_question: (id) => `/surveys/${id}/get_question/`,
     get_response: (id) => `/surveys/${id}/get_response/`,
     create_survey: "/surveys/create_survey/",
+    get_analytic: (id) => `/surveys/${id}/get_analytic/`,
 
     //Feedback
     get_feedback_detail: (id) => `/feedbacks/${id}/feedback_detail/`,
@@ -45,6 +52,7 @@ export const endpoints = {
 
 };
 
+// Auth API
 export const authAPI = (token) => {
     return axios.create({
         baseURL: BASE_URL,
