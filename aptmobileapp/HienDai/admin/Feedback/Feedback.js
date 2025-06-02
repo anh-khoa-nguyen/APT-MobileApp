@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Text, Button, TextInput, Chip, Portal, Dialog, IconButton } from 'react-native-paper';
+import { Text, Button, TextInput, Chip, Portal, Dialog, IconButton, ActivityIndicator } from 'react-native-paper';
 import styles from './styles';
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
+
 import { Searchbar } from 'react-native-paper';
-import { getDateTimeString } from '../../configs/Utils'; // Thêm dòng này nếu đã có hàm này
+import { getDateTimeString, usePaginatedApi } from '../../configs/Utils'; // Thêm dòng này nếu đã có hàm này
 import FeedbackDialog from './FeedbackDialog';
 
 const STATUS_COLORS = {
@@ -14,7 +16,7 @@ const STATUS_COLORS = {
   'Resolved': { background: '#E8F5E9', color: '#388E3C' },
 };
 
-
+// ============== Component ===============
 const FeedbackCard = ({ item, onPress }) => {
   const created = getDateTimeString ? getDateTimeString(item.created_date) : item.created_date?.slice(0, 10);
   const updated = getDateTimeString ? getDateTimeString(item.updated_date) : item.updated_date?.slice(0, 10);
@@ -46,8 +48,7 @@ const FeedbackCard = ({ item, onPress }) => {
 };
 
 const FeedbackAdmin = () => {
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // ============== Variables ===============
   const [search, setSearch] = useState('');
   const [q, setQ] = useState('');
   const [selected, setSelected] = useState(null);
@@ -55,25 +56,13 @@ const FeedbackAdmin = () => {
   const [tab, setTab] = useState('All');
   const [detailLoading, setDetailLoading] = useState(false);
 
-  useEffect(() => {
-    let timer = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const token = await AsyncStorage.getItem("token");
-        let url = endpoints['get_feedback'];
-        if (q) url = `${url}?q=${encodeURIComponent(q)}`;
-        const res = await authAPI(token).get(url);
-        console.log(res.data.results);
-        setFeedbacks(res.data.results);
-      } catch (error) {
-        setFeedbacks([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [q]);
+  const { data: feedbacks, loading, loadMore, setPage, hasMore } = usePaginatedApi(
+    endpoints['get_feedback'],
+    q,
+    [tab]
+  );
 
+  // ============== Function ===============
   const handleCardPress = async (item) => {
     setDetailLoading(true);
     setDialogVisible(true);
@@ -82,7 +71,7 @@ const FeedbackAdmin = () => {
       const res = await authAPI(token).get(endpoints['get_feedback_detail'](item.id));
       setSelected(res.data);
     } catch (error) {
-      setSelected(item); // fallback nếu lỗi
+      setSelected(item);
     } finally {
       setDetailLoading(false);
     }
@@ -99,11 +88,9 @@ const FeedbackAdmin = () => {
     return data;
   };
 
+  // ============== Render UI ===============
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Feedback</Text>
-      </View> */}
       <View style={styles.searchRow}>
         <Searchbar
           placeholder="Search feedback..."
@@ -134,6 +121,9 @@ const FeedbackAdmin = () => {
           <FeedbackCard item={item} onPress={handleCardPress} />
         )}
         contentContainerStyle={styles.listContent}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.2}
+        ListFooterComponent={loading && <ActivityIndicator style={{ margin: 16 }} />}
       />
       <FeedbackDialog
         visible={dialogVisible}

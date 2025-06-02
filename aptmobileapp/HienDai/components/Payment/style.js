@@ -78,6 +78,8 @@ export const styles = StyleSheet.create({
   paymentCardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flex: 1,
+    alignItems: 'center',
   },
   paymentTitle: {
     fontSize: 16,
@@ -126,5 +128,29 @@ export const styles = StyleSheet.create({
   unpaidBadge: {
     backgroundColor: '#3B82F6',
     color: '#fff',
+  }, advancedModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 40,
+    paddingRight: 10,
+    backgroundColor: 'rgba(0,0,0,0.0)', // Không che toàn màn hình
+    marginTop: 100, 
+  },
+  advancedModalContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 10,
+    width: 260,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  }, paymentCardBg: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    minHeight: 110, // hoặc height: 110, hoặc flex: 1 nếu muốn tự động giãn
+    width: '100%',
   },
 });

@@ -193,6 +193,30 @@ export const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: Colors.border,
-  },
+  }, bannerSliderContainer: {
+  width: "100%",
+  height: 140,
+  marginBottom: 24,
+  marginTop: 8,
+  alignItems: "center",
+},
+bannerSlide: {
+  width: 320,
+  height: 130,
+  borderRadius: 18,
+  overflow: "hidden",
+  marginRight: 16,
+  backgroundColor: "#fff",
+  elevation: 3,
+  shadowColor: "#000",
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+},
+bannerImage: {
+  width: "100%",
+  height: "100%",
+  borderRadius: 18,
+},
 });
 export default styles;

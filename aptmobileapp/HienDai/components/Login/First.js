@@ -2,37 +2,29 @@ import React, { useContext, useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
 import { Avatar, Button, Text, TextInput, useTheme } from 'react-native-paper';
 import styles from './stylesF';
+
 import { MyUserContext, MyDispatchContext } from '../../configs/Contexts';
+import { authAPI, endpoints } from "../../configs/Apis";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
-import { authAPI, endpoints } from "../../configs/Apis";
+
 import { useNavigation } from '@react-navigation/native';
 
 const First = () => {
+  // ================ Variables ================
   const userA = useContext(MyUserContext) || "";
   const dispatch = useContext(MyDispatchContext);
+
   const [info, setInfo] = useState(null);
   const [avatar, setAvatar] = useState(null); // local image object
   const [newPassword, setNewPassword] = useState('');
+
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
   const nav = useNavigation();
 
-  // Load resident info
-  useEffect(() => {
-    const loadInfo = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const res = await authAPI(token).get(endpoints["get_info"]);
-        setInfo(res.data);
-      } catch (error) {
-        Alert.alert("Error", "Failed to load user info");
-      }
-    };
-    loadInfo();
-  }, []);
-
-  // Pick image from gallery
+  // ================ Functions ================
   const pickImage = async () => {
     let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -45,10 +37,20 @@ const First = () => {
     }
   };
 
-  // Save changes: upload avatar & change password if needed
+  const loadInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const res = await authAPI(token).get(endpoints["get_info"]);
+      setInfo(res.data);
+    } catch (error) {
+      Alert.alert("Error", "Failed to load user info");
+    }
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
+      //Update avatar
       const token = await AsyncStorage.getItem("token");
       if (avatar) {
         const formData = new FormData();
@@ -61,7 +63,7 @@ const First = () => {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
-console.log("PATCH", endpoints['update_password'], { password: newPassword });
+      //Update password
       if (newPassword.trim()) {
         const formData = new FormData();
         formData.append('password', newPassword);
@@ -72,15 +74,12 @@ console.log("PATCH", endpoints['update_password'], { password: newPassword });
         );
         }
 
-      Alert.alert("Success", "Profile updated successfully!");
+      Alert.alert("Success", "Profile updated successfully! Please log in again.");
       setNewPassword('');
       setAvatar(null);
       dispatch({
           "type": "logout"
       })
-      // Reload info
-      const res = await authAPI(token).get(endpoints["get_info"]);
-      setInfo(res.data);
     } catch (err) {
         console.error(err.message);
       Alert.alert("Error", "Failed to update profile.");
@@ -96,21 +95,21 @@ console.log("PATCH", endpoints['update_password'], { password: newPassword });
     );
   }
 
+  // ================ Effects ================
+  useEffect(() => {
+    loadInfo();
+  }, []);
+
+  // ================ Render UI ================
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
       <View style={styles.avatarContainer}>
         {avatar ? (
-          <Avatar.Image
-            size={110}
-            source={{ uri: avatar.uri }}
-            style={styles.avatar}
+          <Avatar.Image size={110} source={{ uri: avatar.uri }} style={styles.avatar}
           />
         ) : info.avatar ? (
-          <Avatar.Image
-            size={110}
-            source={{ uri: info.avatar }}
-            style={styles.avatar}
+          <Avatar.Image size={110} source={{ uri: info.avatar }} style={styles.avatar}
           />
         ) : (
           <Avatar.Icon
@@ -131,7 +130,6 @@ console.log("PATCH", endpoints['update_password'], { password: newPassword });
         >
           Gallery
         </Button>
-        {/* Có thể thêm Camera nếu muốn */}
       </View>
       <Text style={styles.username}>{info.name}</Text>
       <Text style={styles.email}>{info.phone_number}</Text>

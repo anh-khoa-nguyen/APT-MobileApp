@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, FlatList, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Text, Chip, Button, IconButton, Portal, Dialog, Avatar, ActivityIndicator, TextInput } from 'react-native-paper';
 import styles from './styles';
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authAPI, endpoints } from "../../configs/Apis";
 import * as ImagePicker from "expo-image-picker";
-import { Alert } from 'react-native';
+
 import LockerDialog from './LockerDialog';
+import { usePaginatedApi } from '../../configs/Utils'; // Thêm dòng này
 
 const STATUS_STYLES = {
   Occupied: { bg: '#E3F0FF', color: '#1976D2' },
@@ -14,6 +16,7 @@ const STATUS_STYLES = {
   Inactive: { bg: '#F3E5F5', color: '#8E24AA' },
 };
 
+// ============== Component ===============
 const LockerCard = ({ item, onPress }) => (
   <TouchableOpacity activeOpacity={0.95} onPress={() => onPress(item)} style={{ flex: 1, margin: 6 }}>
     <View style={styles.card}>
@@ -50,10 +53,12 @@ const LockerCard = ({ item, onPress }) => (
 const LockerAdmin = () => {
   const [selected, setSelected] = useState(null);
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [lockers, setLockers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [lockerItems, setLockerItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(false);
+
+  const { data: lockers, loading, loadMore, setPage, hasMore } = usePaginatedApi(
+    endpoints['get_locker']
+  );
 
   const fetchLockerItems = async (lockerId) => {
     setLoadingItems(true);
@@ -61,45 +66,26 @@ const LockerAdmin = () => {
       const token = await AsyncStorage.getItem("token");
       const res = await authAPI(token).get(endpoints.get_locker_item(lockerId));
       if (res.data.results && res.data.results.length === 0) {
-        console.log("No items found for this locker.");
         setLockerItems([]);
         return;
       }
-      console.log("Locker items:", res.data);
       setLockerItems(res.data);
     } catch (e) {
       setLockerItems([]);
-      console.error("Error fetching locker items:", e.message);
     } finally {
       setLoadingItems(false);
     }
   };
 
-  useEffect(() => {
-    const loadLockers = async () => {
-      setLoading(true);
-      try {
-        const token = await AsyncStorage.getItem("token");
-        const res = await authAPI(token).get(endpoints['get_locker']);
-        // Map dữ liệu API sang format giao diện cũ, giữ items: []
-        const mapped = (res.data.results || []).map(l => ({
-          id: l.id.toString(),
-          name: `Locker ${l.locker_name}`,
-          active: l.active,
-          status: l.resident_name ? 'Occupied' : 'Available',
-          assigned: l.resident_name || '',
-          item_count: l.item_count || 0, // Lấy đúng số item từ API
-          items: [],    // Sẽ lấy từ API khác sau
-        }));
-        setLockers(mapped);
-      } catch (error) {
-        setLockers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadLockers();
-  }, []);
+  const mappedLockers = (lockers || []).map(l => ({
+    id: l.id.toString(),
+    name: `Locker ${l.locker_name}`,
+    active: l.active,
+    status: l.resident_name ? 'Occupied' : 'Available',
+    assigned: l.resident_name || '',
+    item_count: l.item_count || 0,
+    items: [],
+  }));
 
   return (
     <View style={styles.container}>
@@ -108,7 +94,7 @@ const LockerAdmin = () => {
         <ActivityIndicator style={{ marginTop: 32 }} />
       ) : (
         <FlatList
-          data={lockers}
+          data={mappedLockers}
           keyExtractor={item => item.id}
           numColumns={2}
           renderItem={({ item }) => (
@@ -117,11 +103,14 @@ const LockerAdmin = () => {
               onPress={locker => {
                 setSelected(locker);
                 setDialogVisible(true);
-                fetchLockerItems(locker.id); // Gọi API lấy locker items
+                fetchLockerItems(locker.id);
               }}
             />
           )}
           contentContainerStyle={styles.listContent}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.2}
+          ListFooterComponent={hasMore && <ActivityIndicator style={{ margin: 16 }} />}
         />
       )}
       <LockerDialog
@@ -130,7 +119,7 @@ const LockerAdmin = () => {
         locker={selected}
         items={lockerItems}
         loadingItems={loadingItems}
-        fetchLockerItems={fetchLockerItems} // truyền thêm prop này
+        fetchLockerItems={fetchLockerItems}
       />
     </View>
   );

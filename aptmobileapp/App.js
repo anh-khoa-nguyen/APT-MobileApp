@@ -14,6 +14,8 @@ import Locker from './HienDai/components/Locker/Locker';
 import Payment from './HienDai/components/Payment/Payment';
 import Community from './HienDai/components/Community/Community';
 import Vihicle from './HienDai/components/Vihicle/Vihicle';
+import Member from './HienDai/components/Member/Member';
+import MemberCreate from './HienDai/components/Member/MemberCreate';
 import PaymentDetails from './HienDai/components/Payment/PaymentDetails';
 import FeedbackDetails from './HienDai/components/Community/FeedbackDetails';
 import SurveyDetails from './HienDai/components/Community/SurveyDetails';
@@ -21,14 +23,18 @@ import FeedbackCreate from './HienDai/components/Community/FeedbackCreate';
 import VihicleCreate from './HienDai/components/Vihicle/VihicleCreate';
 import First from './HienDai/components/Login/First';
 
+
 //Chat
 import Chat from './HienDai/components/Chat/Chat';
+import ChatAI from './HienDai/components/Chat/ChatAI';
+import ChatChoice from './HienDai/components/Chat/ChatChoice';
 
 // Admin
 import DashboardAdmin from './HienDai/admin/Dashboard/Dashboard';
 import ResidentAdmin from './HienDai/admin/Resident/Resident';
 import FeedbackAdmin from './HienDai/admin/Feedback/Feedback';
 import SurveyAdmin from './HienDai/admin/Survey/Survey';
+import SurveyAnalytics from './HienDai/admin/Survey/SurveyAnalytics';
 import LockerAdmin from './HienDai/admin/Locker/Locker';
 import VihicleAdmin from './HienDai/admin/Vihicles/Vihicle';
 import SurveyCreate from './HienDai/admin/Survey/SurveyCreate';
@@ -45,7 +51,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Stack 
+// Stack Resident
 const StackCommunity = createStack(Stack, [
   { name: "Community", component: Community, options: { title: "Community" } },
   { name: "FeedbackDetails", component: FeedbackDetails, options: { title: "Feedback Detail" } },
@@ -56,16 +62,27 @@ const StackCommunity = createStack(Stack, [
 const StackVihicle = createStack(Stack, [
   { name: "Vihicle", component: Vihicle, options: { title: "Vihicle" } },
   { name: "VihicleCreate", component: VihicleCreate, options: { title: "New Card" } },
+  { name: "Member", component: Member, options: { title: "Family Member" } },
+  { name: "MemberCreate", component: MemberCreate, options: { title: "Add Family Member" } },
+]);
+
+const ChatStack = createStack(Stack, [
+  { name: "ChatChoice", component: ChatChoice, options: { title: "Chat Choice" } },
+  { name: "Chat", component: Chat, options: { title: "Chat" } },
+  { name: "ChatAI", component: ChatAI, options: { title: "Chat AI" } }
 ]);
 
 const StackSurveyAdmin = createStack(Stack, [
   { name: "SurveyAdmin", component: SurveyAdmin, options: { title: "Survey" } },
   { name: "SurveyCreate", component: SurveyCreate, options: { title: "Survey Create" } },
+  { name: "SurveyAnalytics", component: SurveyAnalytics, options: { title: "Survey Analytics" } },
 ]);
 
-const ChatStack = createStack(Stack, [
-  { name: "Chat", component: Chat, options: { title: "Chat", headerShown: false } },
+const StackResident = createStack(Stack, [
+  { name: "ResidentAdmin", component: ResidentAdmin, options: { title: "Resident" } },
+  { name: "MemberCreate", component: MemberCreate, options: { title: "Add Resident Profile" } },
 ]);
+
 
 //Tab
 const TabNavigator = () => {
@@ -82,12 +99,11 @@ const TabNavigator = () => {
           <Tab.Screen name="ForgotAccount" component={ForgotAccountScreen} options={{ title: "Quên tài khoản", tabBarIcon: () => <Icon size={30} source="account-question" /> }} />
         </>
       ) : user?.change_password_required ? (
-        // Nếu bắt buộc đổi mật khẩu, chỉ hiện tab First
         <Tab.Screen name="First" component={First} options={{ title: "First Login", tabBarIcon: () => <Icon size={30} source="information" /> }} />
       ) : isAdmin ? (
         <>
           <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} options={{ title: "Dashboard", tabBarIcon: () => <Icon size={30} source="view-dashboard" /> }} />
-          <Tab.Screen name="ResidentAdmin" component={ResidentAdmin} options={{ title: "Resident", tabBarIcon: () => <Icon size={30} source="account-group" /> }} />
+          <Tab.Screen name="StackResident" component={StackResident} options={{ title: "Resident", headerShown:false, tabBarIcon: () => <Icon size={30} source="account-group" /> }} />
           <Tab.Screen name="FeedbackAdmin" component={FeedbackAdmin} options={{ title: "Feedback", tabBarIcon: () => <Icon size={30} source="comment" /> }} />
           <Tab.Screen name="StackSurveyAdmin" component={StackSurveyAdmin} options={{ title: "Survey", headerShown:false, tabBarIcon: () => <Icon size={30} source="clipboard-text" /> }} />
           <Tab.Screen name="LockerAdmin" component={LockerAdmin} options={{ title: "Locker", tabBarIcon: () => <Icon size={30} source="lock" /> }} />

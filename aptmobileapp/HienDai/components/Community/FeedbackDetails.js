@@ -7,6 +7,8 @@ import { authAPI } from "../../configs/Apis";
 import RenderHtml from 'react-native-render-html';
 import { formatDate } from '../../configs/Utils';
 import { endpoints } from "../../configs/Apis";
+import { tagsStyles } from '../../Styles/MyStyles';
+import he from 'he';
 
 
 const STATUS_COLORS = {
@@ -19,13 +21,18 @@ export default function FeedbackDetails({ route }) {
   const [loading, setLoading] = useState(true);
 
   const feedbackId = route?.params?.feedbackId;
+  console.log('feedbackId:', feedbackId);
 
   useEffect(() => {
     const fetchFeedback = async () => {
       try {
         setLoading(true);
         const token = await AsyncStorage.getItem("token");
+        console.log(endpoints['get_feedback_detail'](feedbackId))
         const res = await authAPI(token).get(endpoints['get_feedback_detail'](feedbackId));
+        // console.log('Feedback details:', res.data.content);
+        console.log('HTML render:', he.decode(res.data.content || ''));
+
         setFeedback(res.data);
       } catch (error) {
         setFeedback(null);
@@ -68,9 +75,11 @@ export default function FeedbackDetails({ route }) {
           {/* Nội dung dạng HTML */}
           <RenderHtml
             contentWidth={350}
-            source={{ html: feedback.content || '' }}
+            source={{ html: he.decode(feedback.content || '') }}
             baseStyle={styles.description}
-          />
+            enableCSSInlineProcessing={true}
+            tagsStyles={tagsStyles}
+/>
           {feedback.fbimg && (
             <Image source={{ uri: feedback.fbimg }} style={styles.image} resizeMode="cover" />
           )}

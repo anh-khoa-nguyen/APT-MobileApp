@@ -112,5 +112,7 @@ export const styles = StyleSheet.create({
   },contentWrapper: {
     paddingLeft: 20,
     paddingRight: 20,
-  },
+  }, memberList: {
+  marginVertical: 12,
+},
 });
