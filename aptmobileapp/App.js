@@ -22,6 +22,7 @@ import SurveyDetails from './HienDai/components/Community/SurveyDetails';
 import FeedbackCreate from './HienDai/components/Community/FeedbackCreate';
 import VihicleCreate from './HienDai/components/Vihicle/VihicleCreate';
 import First from './HienDai/components/Login/First';
+import PaymentMomo from './HienDai/components/Payment/PaymentMomo'; // Đường dẫn đúng tới file
 
 //Chat
 import Chat from './HienDai/components/Chat/Chat';
@@ -38,20 +39,6 @@ import LockerAdmin from './HienDai/admin/Locker/Locker';
 import VihicleAdmin from './HienDai/admin/Vihicles/Vihicle';
 import SurveyCreate from './HienDai/admin/Survey/SurveyCreate';
 import SurveySummary from './HienDai/admin/Survey/SurveySummary';
-import LoginScreen from './HienDai/components/Login/Login';
-import ProfileScreen from './HienDai/components/Profile/Profile';
-import ForgotAccountScreen from './HienDai/components/Login/ForgotAccount';
-import Locker from './HienDai/components/Locker/Locker';
-import Payment from './HienDai/components/Payment/Payment';
-import Community from './HienDai/components/Community/Community';
-import Vihicle from './HienDai/components/Vihicle/Vihicle';
-import PaymentDetails from './HienDai/components/Payment/PaymentDetails';
-import FeedbackDetails from './HienDai/components/Community/FeedbackDetails';
-import SurveyDetails from './HienDai/components/Community/SurveyDetails';
-import FeedbackCreate from './HienDai/components/Community/FeedbackCreate';
-import VihicleCreate from './HienDai/components/Vihicle/VihicleCreate';
-import First from './HienDai/components/Login/First';
-import PaymentMomo from './HienDai/components/Payment/PaymentMomo'; // Đường dẫn đúng tới file
 
 // Etc
 import { useContext, useReducer, useEffect, useState } from "react";
@@ -144,11 +131,10 @@ const TabNavigator = () => {
       ) : (
         <>
           <Tab.Screen name="Home" component={Home} options={{ title: "Home", tabBarIcon: () => <Icon size={30} source="home" /> }} />
-          <Tab.Screen name="PaymentStack" component={PaymentStack} options={{ title: "Payment", tabBarIcon: () => <Icon size={30} source="credit-card" /> }} />
+          <Tab.Screen name="PaymentStack" component={PaymentStack} options={{ title: "Payment", headerShown: false, tabBarIcon: () => <Icon size={30} source="credit-card" /> }} />
           <Tab.Screen name="Locker" component={Locker} options={{ title: "Locker", tabBarIcon: () => <Icon size={30} source="lock" /> }} />
           <Tab.Screen name="Vehicle" component={StackVihicle} options={{  title: "Vehicle", headerShown: false, tabBarIcon: () => <Icon size={30} source="car" /> }} />
           <Tab.Screen name="Community" component={StackCommunity} options={{ title: "Community", headerShown: false, tabBarIcon: () => <Icon size={30} source="comment" /> }} />
-          <Tab.Screen name="PaymentDetail" component={PaymentDetails} options={{ title: "Payment Detail", tabBarIcon: () => <Icon size={30} source="credit-card" /> }} />
           <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile", tabBarIcon: () => <Icon size={30} source="information" /> }} />
           <Tab.Screen name="ChatStack" component={ChatStack} options={{ title: "Chat", headerShown: false, tabBarIcon: () => <Icon size={30} source="chat" /> }} />
         </>
