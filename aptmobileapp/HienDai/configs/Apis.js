@@ -29,16 +29,18 @@ export const endpoints = {
     get_locker_item: (id) => `/lockers/${id}/get_locker_item/`,
     create_locker_item: (id) => `/lockers/${id}/create_locker_item/`,
     update_locker_item: (id) => `/lockeritems/${id}/update_locker_item/`,
-    
+
     //Payment
     get_payment: "/payments/",
+    create_momo_payment: "/momo/create-payment/",
+    confirm_momo_payment: (id) => `/momo/confirm-payment/${id}/`,
 
     //Card (Vihicle)
     get_card: "/cards/",
     create_card: (id) => `/residents/${id}/create_card/`, //ID của resident
     confirm_card: (id) => `/cards/${id}/confirm_card/`,
 
-    //Survey 
+    //Survey
     get_survey: "/surveys/",
     sub_survey: (id) => `/surveys/${id}/sub_survey/`,
     get_question: (id) => `/surveys/${id}/get_question/`,

@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "aptmobileapp",
+    "scheme": "aptmobileapp",
     "slug": "aptmobileapp",
     "version": "1.0.0",
     "orientation": "portrait",
