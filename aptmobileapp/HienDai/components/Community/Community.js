@@ -8,6 +8,7 @@ import { authAPI, endpoints } from "../../configs/Apis";
 import { useNavigation } from "@react-navigation/native";
 import { getDateTimeString } from '../../configs/Utils';
 
+import { decodeHtmlEntities } from '../../configs/Utils';
 
 
 const STATUS_COLORS = {
@@ -141,7 +142,7 @@ useEffect(() => {
               {item.resolve_status ? 'Resolved' : 'Pending'}
             </Badge>
           </View>
-          <Text style={styles.feedbackDescription} numberOfLines={2}>{item.content}</Text>
+          <Text style={styles.feedbackDescription} numberOfLines={2}>{decodeHtmlEntities(item.content).replace(/<[^>]+>/g, '')}</Text>
           <View style={{ flexDirection: 'column',marginTop: 4 }}>
             <Text style={styles.feedbackDate}>
               Created date: {created}

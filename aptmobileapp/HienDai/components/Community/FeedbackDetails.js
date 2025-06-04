@@ -10,7 +10,6 @@ import { endpoints } from "../../configs/Apis";
 import { tagsStyles } from '../../Styles/MyStyles';
 import he from 'he';
 
-
 const STATUS_COLORS = {
   false: { backgroundColor: '#FFD966', color: '#fff' }, // Chưa giải quyết
   true: { backgroundColor: '#3DC47E', color: '#fff' },  // Đã giải quyết
@@ -59,7 +58,6 @@ export default function FeedbackDetails({ route }) {
       </View>
     );
   }
-
 
   return (
     <ScrollView style={styles.container}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, Alert } from 'react-native';
+import { View, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Text, Dialog, Portal, IconButton, Button } from 'react-native-paper';
 import styles from './styles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -77,7 +77,9 @@ const ResidentDialog = ({
             </Text>
           </View>
           <Text style={styles.dialogLabel}>Select New Apartment</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+          <ScrollView style={{ maxHeight: 200 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+            
             {apartmentsWithResident.map((apt, idx) => (
               <TouchableOpacity
                 key={apt.id || apt.name || idx}
@@ -100,7 +102,9 @@ const ResidentDialog = ({
                 </Text>
               </TouchableOpacity>
             ))}
+            
           </View>
+          </ScrollView>
         </Dialog.Content>
         <Dialog.Actions style={styles.dialogActions}>
           <Button mode="outlined" onPress={onDismiss} style={styles.dialogBtn} labelStyle={styles.dialogBtnLabel}>

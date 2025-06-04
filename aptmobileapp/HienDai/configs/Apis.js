@@ -1,4 +1,5 @@
 import axios from "axios";
+// import { get } from "core-js/core/dict";
 
 const BASE_URL = "https://presumably-literate-bluejay.ngrok-free.app";
 
@@ -44,6 +45,7 @@ export const endpoints = {
     get_response: (id) => `/surveys/${id}/get_response/`,
     create_survey: "/surveys/create_survey/",
     get_analytic: (id) => `/surveys/${id}/get_analytic/`,
+    get_summary: "/surveys/get_summary/",
 
     //Feedback
     get_feedback_detail: (id) => `/feedbacks/${id}/feedback_detail/`,

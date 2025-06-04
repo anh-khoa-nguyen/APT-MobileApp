@@ -28,6 +28,15 @@ export function getDateTimeString(dateStr) {
   return `${day}-${month}-${year} at ${time.replace(/:/g, ':')}`;
 }
 
+export function decodeHtmlEntities(str) {
+  if (!str) return '';
+  return str.replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&amp;/g, '&');
+}
+
 export function usePaginatedApi(endpoint, query = '', deps = []) {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);

@@ -83,6 +83,11 @@ export default function Locker() {
 
   useEffect(() => {
     setPackages([]);
+    setPage(1);
+    setHasMore(true);
+  }, [reload]);
+
+    useEffect(() => {
     loadPackages();
   }, [page, reload]);
 

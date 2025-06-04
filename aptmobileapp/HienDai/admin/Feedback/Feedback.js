@@ -9,6 +9,7 @@ import { authAPI, endpoints } from "../../configs/Apis";
 import { Searchbar } from 'react-native-paper';
 import { getDateTimeString, usePaginatedApi } from '../../configs/Utils'; // Thêm dòng này nếu đã có hàm này
 import FeedbackDialog from './FeedbackDialog';
+import { decodeHtmlEntities } from '../../configs/Utils'; // Thêm dòng này nếu chưa có
 
 const STATUS_COLORS = {
   'New': { background: '#1976D2', color: '#fff' },
@@ -30,7 +31,12 @@ const FeedbackCard = ({ item, onPress }) => {
             {item.resolve_status ? 'Resolved' : 'In Progress'}
           </Chip>
         </View>
-        <Text style={styles.cardContent}>{item.content.replace(/<[^>]+>/g, '')}</Text>
+        <Text
+          style={styles.cardContent}
+          numberOfLines={2}
+        >
+          {decodeHtmlEntities(item.content).replace(/<[^>]+>/g, '')}
+        </Text>
         <Text style={styles.cardFrom}>
           From: <Text style={styles.cardFromName}>{item.resident_name}</Text>
         </Text>

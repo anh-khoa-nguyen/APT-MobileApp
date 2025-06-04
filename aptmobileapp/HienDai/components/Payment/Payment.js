@@ -213,7 +213,7 @@ export default function Payment() {
           />
         </View>
         <Searchbar
-          placeholder="Tìm kiếm hóa đơn ..."
+          placeholder="Enter your keywords ..."
           value={q}
           onChangeText={setQ}
         />

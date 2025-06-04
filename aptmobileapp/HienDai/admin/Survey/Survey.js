@@ -89,6 +89,8 @@ const SurveyAdmin = () => {
   const { data: surveysRaw, loading, loadMore, setPage, hasMore } = usePaginatedApi(
     endpoints['get_survey']
   );
+  
+  console.log("Surveys Raw: ", surveysRaw);
 
   const surveys = (surveysRaw || []).map(s => ({
     id: s.id?.toString(),
@@ -110,15 +112,25 @@ const SurveyAdmin = () => {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>Surveys</Text>
-        <Button
-          mode="contained"
-          icon="plus"
-          style={styles.createBtn}
-          labelStyle={styles.createBtnLabel}
-          onPress={() => nav.navigate('SurveyCreate')}
-        >
-          Create
-        </Button>
+        <View style={{ flexDirection: 'row' }}> 
+          <Button
+            mode="contained"
+            icon="plus"
+            style={styles.createBtn}
+            labelStyle={styles.createBtnLabel}
+            onPress={() => nav.navigate('SurveyCreate')}
+          >
+            Create
+          </Button>
+          <Button
+            mode="contained"
+            style={styles.summaryBtn}
+            labelStyle={styles.createBtnLabel}
+            onPress={() => nav.navigate('SurveySummary', { surveys: surveysRaw || [] })} // truyền mảng kết quả
+          >
+            Summary
+          </Button>
+        </View>
       </View>
       <Text style={styles.sectionTitle}>Surveys</Text>
       {loading && surveys.length === 0 ? (

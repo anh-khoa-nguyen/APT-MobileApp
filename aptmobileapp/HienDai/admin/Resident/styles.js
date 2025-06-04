@@ -118,6 +118,9 @@ export default StyleSheet.create({
   // Dialog styles
   dialog: {
     borderRadius: 22,
+    maxHeight: '60%', // hoặc 65%, tuỳ ý
+    alignSelf: 'center',
+    width: '90%', // hoặc 90% nếu muốn nhỏ lại
   },
   dialogClose: {
     position: 'absolute',

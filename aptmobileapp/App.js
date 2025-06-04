@@ -38,6 +38,7 @@ import SurveyAnalytics from './HienDai/admin/Survey/SurveyAnalytics';
 import LockerAdmin from './HienDai/admin/Locker/Locker';
 import VihicleAdmin from './HienDai/admin/Vihicles/Vihicle';
 import SurveyCreate from './HienDai/admin/Survey/SurveyCreate';
+import SurveySummary from './HienDai/admin/Survey/SurveySummary';
 
 // Etc
 import { useContext, useReducer, useEffect, useState } from "react";
@@ -76,6 +77,7 @@ const StackSurveyAdmin = createStack(Stack, [
   { name: "SurveyAdmin", component: SurveyAdmin, options: { title: "Survey" } },
   { name: "SurveyCreate", component: SurveyCreate, options: { title: "Survey Create" } },
   { name: "SurveyAnalytics", component: SurveyAnalytics, options: { title: "Survey Analytics" } },
+  { name: "SurveySummary", component: SurveySummary, options: { title: "Survey Summary" } },
 ]);
 
 const StackResident = createStack(Stack, [
