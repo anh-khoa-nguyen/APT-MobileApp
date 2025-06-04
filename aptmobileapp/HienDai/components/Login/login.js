@@ -18,8 +18,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MyDispatcherContext } from "../../configs/Contexts";
 import { useNavigation } from "@react-navigation/native";
 import HomeScreen from "../Home/Home";
-// import { REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET } from "@env";
 
+
+import { CLIENT_ID, CLIENT_SECRET } from "@env";
+
+
+const clientId = CLIENT_ID;
+const clientSecret = CLIENT_SECRET;
 
 const LoginScreen = ({ navigation }) => {
     const [errorMessage, setErrorMessage] = useState(false);
@@ -48,18 +53,13 @@ const LoginScreen = ({ navigation }) => {
     const login = async () => {
         setLoading(true);
         setErrorMessage(false);
-
-        const payload = {
-            username,
-            password,
-            client_id: REACT_APP_CLIENT_ID,
-            client_secret: REACT_APP_CLIENT_SECRET,
-            // client_id: process.env.REACT_APP_CLIENT_ID,
-            // client_secret: process.env.REACT_APP_CLIENT_SECRET,
-            grant_type: "password",
-        };
-
-
+            const payload = {
+            username: user.username,
+            password: user.password,
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: "password"
+            };
         console.log(
             "REACT_APP_CLIENT_ID: ",
             REACT_APP_CLIENT_ID,

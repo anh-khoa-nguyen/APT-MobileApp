@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "1f15544f-b965-4e61-8293-a8b8a1d9d28c"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.KhoiKhoa.aptmobileapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}
